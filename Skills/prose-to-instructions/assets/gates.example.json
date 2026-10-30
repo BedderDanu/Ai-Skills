@@ -1,0 +1,37 @@
+{
+  "_comment": "Example structural gate config. Every check here is one where the check IS the thing meant - no proxy in between. Copy, edit, delete what doesn't apply. Keys beginning with underscore are ignored.",
+
+  "_required_sections": "Headings that must exist AND have a non-empty body. Case-insensitive. Catches the silent-omission failure: the section that was supposed to be there and just isn't.",
+  "required_sections": [
+    "Vocabulary",
+    "Worked Example",
+    "Independent Practice",
+    "Exit Ticket"
+  ],
+
+  "_max_words": "A length cap is not a proxy for quality - if the rule is 'two pages', the rule literally is a length. Roughly 500 words per page.",
+  "max_words": 1000,
+
+  "_required_phrases": "Text that must appear verbatim. Use for standards codes, required attributions, mandated disclaimers.",
+  "required_phrases": [],
+
+  "_forbidden_phrases": "The rescued form of an unfalsifiable virtue. 'Be equity-aware' cannot be checked; 'these assumptions must not appear' can. Presence is objectively verifiable and gaming the check requires satisfying it.",
+  "forbidden_phrases": [
+    "your family vacation",
+    "when you fly",
+    "ask your parents to drive",
+    "at home on your computer",
+    "when you were younger, your parents"
+  ],
+
+  "_define_before_use": "Terms whose first appearance must be inside the definition section. Catches the ordering failure that a mere presence check misses - a vocabulary box at the end of the page is not scaffolding.",
+  "define_before_use": {
+    "definition_section": "Vocabulary",
+    "terms": []
+  },
+
+  "_companion_files": "Files that must exist alongside the artifact. Answer keys are the usual case - they get forgotten, and their absence is invisible until someone needs one.",
+  "companion_files": [],
+
+  "_rejected": "These keys are refused by validate_artifact.py on purpose: max_grade_level, reading_level, flesch_kincaid, max_sentence_words, vocabulary_difficulty. All are proxies. Blocking on them teaches sentence-chopping, which strips connectives and can make text score easier while reading harder. Run scan_prose.py for those signals instead - advisory, located, unscored."
+}

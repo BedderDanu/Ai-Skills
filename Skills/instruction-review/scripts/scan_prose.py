@@ -26,8 +26,12 @@ the directive sections and ignore the rest.
 Note also that a markdown paragraph counts as one "line" here. That is
 correct for instruction blocks and misleading for prose.
 
+Skipped: headings, YAML frontmatter, fenced code blocks, and the contents
+of inline `code` spans. Commands and identifiers are not prose, and
+`make clean` is not a virtue word.
+
 Usage:
-    python scan_prose.py <file> [--json]
+    python -I -X utf8 scan_prose.py <file> [--json]
 """
 
 import argparse
@@ -103,15 +107,38 @@ CATEGORY_PROMPTS = {
 }
 
 
+FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+INLINE_CODE = re.compile(r"(`+)(?!`).*?(?<!`)\1(?!`)")
+
+
 def split_lines(text):
-    """Yield (line_number, raw_line) for non-empty, non-heading lines."""
-    for i, raw in enumerate(text.splitlines(), start=1):
+    """Yield (line_number, line) for prose lines: not blank, not a heading,
+    not frontmatter, not inside a fenced code block."""
+    lines = text.splitlines()
+    start = 0
+    if lines and lines[0].strip() == "---":
+        for j in range(1, len(lines)):
+            if lines[j].strip() in ("---", "..."):
+                start = j + 1
+                break
+    fence = None
+    for i in range(start, len(lines)):
+        raw = lines[i]
+        f = FENCE.match(raw)
+        if f:
+            marker, rest = f.group(1), f.group(2)
+            if fence is None:
+                fence = marker
+            elif (marker[0] == fence[0] and len(marker) >= len(fence)
+                  and not rest.strip()):
+                fence = None
+            continue
+        if fence is not None:
+            continue
         stripped = raw.strip()
-        if not stripped:
+        if not stripped or stripped.startswith("#"):
             continue
-        if stripped.startswith("#"):
-            continue
-        yield i, stripped
+        yield i + 1, stripped
 
 
 def strip_markers(line):
@@ -120,9 +147,14 @@ def strip_markers(line):
 
 
 def find_phrases(line_lower, phrases):
+    """Match whole words: "aim to" must not fire on "claim to"."""
     hits = []
     for p in phrases:
-        pattern = r"\b" + re.escape(p) + r"\b" if p.isalpha() else re.escape(p)
+        pattern = re.escape(p)
+        if p[0].isalnum():
+            pattern = r"\b" + pattern
+        if p[-1].isalnum():
+            pattern += r"\b"
         if re.search(pattern, line_lower):
             hits.append(p)
     return hits
@@ -142,7 +174,7 @@ def scan(text):
 
     for lineno, line in split_lines(text):
         body = strip_markers(line)
-        low = body.lower()
+        low = INLINE_CODE.sub("``", body).lower()
         directive_lines += 1
         hit = {}
 
@@ -158,7 +190,7 @@ def scan(text):
             if find_patterns(low, patterns):
                 hit[cat] = ["line opens with an unverifiable/dependent construction"]
 
-        wc = word_count(body)
+        wc = word_count(low)
         if wc > LONG_SENTENCE_WORDS:
             hit["long_sentence"] = [f"{wc} words"]
 

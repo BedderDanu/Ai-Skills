@@ -2,6 +2,14 @@
 
 For instruction sets that already exist and are already in use. The buckets, tests, and transformations are the same as in the base triage pass; this file covers only what is different when the material has history.
 
+## Contents
+1. What is different
+2. Sequence
+3. Findings sheet format
+4. Blind spots that look like clean results
+5. Deletion discipline
+6. What not to do
+
 ## What is different
 
 A live instruction set has three properties a fresh report does not:
@@ -16,9 +24,9 @@ Open by asking what has actually gone wrong lately. A single real failure locate
 
 **1. Inventory.** Count lines, count distinct directives, note the order. Report the count plainly. Instruction-following degrades as density rises, and models show measurable bias toward earlier instructions — so both the total and the ordering are findings in themselves.
 
-**1b. If the material is a skill, run the packaging check.** Read `skill-spec-checklist.md` and check naming, frontmatter, description, body length, and file structure. This is separate from the bucket-test classification in steps 3–4b below — a skill can pass one and fail the other. Do this whether or not anything else in the audit turns up a problem.
+**1b. If the material is a skill, run the packaging check** (the checklist SKILL.md names): naming, frontmatter, description, body length, and file structure. Do this whether or not anything else in the audit turns up a problem.
 
-**2. Run the scanner.** `scripts/scan_prose.py <file>` for located signals. It is advisory. Its output is a list of places to look, not a verdict, and it emits no score by design. Do not compute one from it.
+**2. Run the scanner.** `python -I -X utf8 scripts/scan_prose.py <file>` for located signals. It is advisory. Its output is a list of places to look, not a verdict, and it emits no score by design. Do not compute one from it.
 
 **3. Classify every line** into FACT, CONSTRAINT, PROCEDURE, or VIRTUE — the four buckets classified inline here — plus three buckets specific to audit:
 
@@ -36,10 +44,12 @@ audit cannot confirm, because confirming it needs observed behaviour and
 the audit only reads a file. Report exposure, not override.
 
 If the user says a specific rule is being disobeyed, that is observation,
-and the layer stack becomes checkable: profile preferences, account-level
-skills, global instructions. Cowork skills are account-scoped with no
-per-project scoping, so a skill built for one project can act in another.
-Raise this as a candidate cause; do not assert it.
+and the layer stack becomes checkable: the harness and its system prompt,
+global or user-level instructions, user-level or account-level skills, and,
+for a subagent, the coordinator's brief versus the subagent's own session.
+A skill installed at user or account level applies in every project, so a
+skill built for one project can act in another. Raise these as candidate
+causes; do not assert one.
 
 **5. Test the ignored ones.** For any rule the user says is being ignored, check in order: is the block too long, is the line unfalsifiable, is it buried late in the ordering, does it conflict with an earlier line. Report which. "It is being ignored because it cannot be violated" is a different fix from "it is being ignored because it is line 60 of 80."
 
@@ -78,6 +88,9 @@ Proposed order, highest-stakes first, with reasoning.
 
 ## Keep as-is (N)
 Line numbers only. No commentary needed.
+
+## Verification pass
+Who ran it, and every finding it added, corrected or withdrew.
 ```
 
 ## Blind spots that look like clean results
@@ -102,8 +115,6 @@ Three cuts are safe to propose confidently:
 Everything else is a proposal.
 
 ## What not to do
-
-**Do not rewrite the file.** Same rule as CONVERT: produce the sheet, let the user apply it. An audit that returns a cleaned file gets approved on content and never checked for executability, which is the failure the skill exists to prevent.
 
 **Do not treat length as the only problem.** A short block of unfalsifiable virtues is worse than a long block of checkable rules. Density is one finding among several; report form and density separately.
 

@@ -96,6 +96,11 @@ invalidate the plan.>
 
 ## Completion record
 (filled in by /execute-plan when the work lands)
+
+## Progress Log
+<A logged list written by the /execute-plan skill of its working notes for each stage.
+Used in case of work interruption, so that the plan can eventually be resumed from the 
+break point.>
 ```
 
 ## Review-Loop

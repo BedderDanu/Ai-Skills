@@ -25,15 +25,14 @@ There is no third disposition here. Do not rescue a TONE line into a numeric thr
 
 ## The Goodhart guard
 
-A TONE line rescued into a number — contractions per paragraph, exclamation points per email — can be satisfied while the actual voice is missed: the writer hits the metric and still doesn't sound like anyone. This is the same failure mode this project already refuses to run on readability scores: advisory only, never a gate. Propose a numeric rescue for a TONE line only if the user explicitly confirms that number is what they mean, and mark it NEEDS USER DECISION regardless of how they answer. A tone row never produces a proposed gate for this reason — only a mechanical row can.
+A TONE line rescued into a number — contractions per paragraph, exclamation points per email — can be satisfied while the actual voice is missed: the writer hits the metric and still doesn't sound like anyone. This is the same failure mode this skill already refuses to run on readability scores: advisory only, never a gate. Propose a numeric rescue for a TONE line only if the user explicitly confirms that number is what they mean, and mark it NEEDS USER DECISION regardless of how they answer. A tone row never produces a proposed gate for this reason — only a mechanical row can.
 
 ## Sheet format
 
-**AUDIT mode:** add one column, `Track` (Mechanical / Tone), to the Rewrite and Keep-as-is tables in the findings sheet. Everything else in that format is unchanged.
+Every mode adds one column, `Track` (Mechanical / Tone), and nothing else:
 
-**CONVERT mode:** use `assets/voice_triage_sheet_template.md` in place of the base template, rather than adding a column to the shared one — a voice source and an ordinary prose source shouldn't carry each other's structure.
-
-**DESIGN mode:** same template and disposition rules as CONVERT, applied to a voice guide being written from scratch rather than extracted from a source document.
+- **AUDIT:** to the Rewrite and Cut tables in the findings sheet.
+- **CONVERT and DESIGN:** to the Constraints and Cut tables in `assets/triage_sheet_template.md`, plus a Track line on every Virtue entry. DESIGN applies the same rules to a voice guide written from scratch.
 
 ## Worked example
 

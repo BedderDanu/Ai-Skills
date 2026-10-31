@@ -9,6 +9,9 @@ proxy in between, so gaming a check requires satisfying it. A required
 section is either present or absent; a word cap is either respected or
 not; a forbidden phrase is either there or it isn't.
 
+Headings inside fenced code blocks are not headings: a `# comment` in a
+shell example does not start a section.
+
 DELIBERATELY ABSENT: readability formulas, grade-level scores, sentence
 length limits, vocabulary difficulty indices. Those are proxies. They
 measure syllables and sentence length, not conceptual load, syntactic
@@ -20,8 +23,8 @@ harder. Use scan_prose.py for those signals, advisory only.
 Do not add a readability gate to this file.
 
 Usage:
-    python validate_artifact.py <artifact> --config <gates.json>
-    python validate_artifact.py <artifact> --config <gates.json> --json
+    python -I -X utf8 validate_artifact.py <artifact> --config <gates.json>
+    python -I -X utf8 validate_artifact.py <artifact> --config <gates.json> --json
 """
 
 import argparse
@@ -48,22 +51,50 @@ class Result:
         return not self.failed
 
 
+HEADING = re.compile(r"^ {0,3}(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$")
+FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+
+
+def sections(text):
+    """Return [(title_lower, body_start, body_end)] for markdown ATX headings.
+
+    Offsets index into `text`. A section's body runs to the next heading
+    of the same or higher level, so it includes its subsections. Lines
+    inside fenced code blocks are never headings. A closing run of #s is
+    stripped only when a space precedes it, so "## Using C#" keeps its
+    title.
+    """
+    found = []
+    fence = None
+    pos = 0
+    for line in text.splitlines(keepends=True):
+        f = FENCE.match(line.rstrip("\r\n"))
+        if f:
+            marker, rest = f.group(1), f.group(2)
+            if fence is None:
+                fence = marker
+            elif (marker[0] == fence[0] and len(marker) >= len(fence)
+                  and not rest.strip()):
+                fence = None
+        elif fence is None:
+            m = HEADING.match(line.rstrip("\r\n"))
+            if m:
+                level = len(m.group(1))
+                for s in found:
+                    if s[4] and s[0] >= level:
+                        s[3], s[4] = pos, False
+                found.append([level, m.group(2).strip().lower(),
+                              pos + len(line), len(text), True])
+        pos += len(line)
+    return [(title, start, end) for _, title, start, end, _ in found]
+
+
 def heading_blocks(text):
-    """Map heading title -> body text beneath it (markdown ATX headings)."""
+    """Map heading title -> body text beneath it. Repeated headings merge."""
     blocks = {}
-    current = None
-    buf = []
-    for line in text.splitlines():
-        m = re.match(r"^\s*(#{1,6})\s+(.*?)\s*#*\s*$", line)
-        if m:
-            if current is not None:
-                blocks[current] = "\n".join(buf).strip()
-            current = m.group(2).strip().lower()
-            buf = []
-        elif current is not None:
-            buf.append(line)
-    if current is not None:
-        blocks[current] = "\n".join(buf).strip()
+    for title, start, end in sections(text):
+        body = text[start:end].strip()
+        blocks[title] = (blocks[title] + "\n" + body).strip() if title in blocks else body
     return blocks
 
 
@@ -114,22 +145,35 @@ def check_forbidden_phrases(text, phrases, res):
             res.add(f"forbidden phrase absent: '{p}'", True, "absent")
 
 
+def check_section_forbidden_phrases(text, spec, res):
+    """Phrases that may appear in the document, but not under one heading."""
+    blocks = heading_blocks(text)
+    for title, phrases in spec.items():
+        key = title.strip().lower()
+        if key not in blocks:
+            res.add(f"section present: '{title}'", False,
+                    "heading not found, so its forbidden phrases cannot be checked")
+            continue
+        low = blocks[key].lower()
+        for p in phrases:
+            n = low.count(p.lower())
+            res.add(f"'{p}' absent from '{title}'", n == 0,
+                    "absent" if n == 0 else f"{n} occurrence(s)")
+
+
 def check_define_before_use(text, spec, res):
     """Each term's first appearance must be inside the definition section."""
     section_title = spec.get("definition_section", "").strip().lower()
     terms = spec.get("terms", [])
-    blocks = heading_blocks(text)
+    spans = [(s, e) for t, s, e in sections(text) if t == section_title]
 
-    if section_title not in blocks:
+    if not spans:
         res.add("definition section present", False,
                 f"'{spec.get('definition_section')}' not found")
         return
     res.add("definition section present", True, "found")
 
-    body = blocks[section_title]
     low_all = text.lower()
-    def_start = low_all.find(body.lower()) if body else -1
-    def_end = def_start + len(body) if def_start >= 0 else -1
 
     for term in terms:
         t = term.lower()
@@ -138,7 +182,7 @@ def check_define_before_use(text, spec, res):
             res.add(f"defined before use: '{term}'", True, "term not used")
             continue
         first = m.start()
-        inside = def_start <= first < def_end
+        inside = any(s <= first < e for s, e in spans)
         if inside:
             res.add(f"defined before use: '{term}'", True, "first use is in definitions")
         else:
@@ -185,6 +229,8 @@ def run(artifact_path, config):
         check_required_phrases(text, config["required_phrases"], res)
     if "forbidden_phrases" in config:
         check_forbidden_phrases(text, config["forbidden_phrases"], res)
+    if "section_forbidden_phrases" in config:
+        check_section_forbidden_phrases(text, config["section_forbidden_phrases"], res)
     if "define_before_use" in config:
         check_define_before_use(text, config["define_before_use"], res)
     if "companion_files" in config:

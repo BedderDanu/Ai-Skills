@@ -24,7 +24,7 @@ You own the code. The provided model will review it. Fix what it gets right, pus
 If the project is tracked by git, run `git status --short`. Do not stash, discard, or include unrelated changes. Limit the review to the change paths if they cleanly separate.
 If there is no clean listing of changed files, provide the reviewer with your list of files you edited as part of your change, and let it know the scope of the change you were trying to make.
 
-Find the base after `git fetch origin`:
+If the invoking skill names a base, use it. Find the base after `git fetch origin`:
 
  - PR: `gh pr view <n> --json baseRefName,headRefOid`. Check out the branch only if clean. Confirm `HEAD` is the PR head, or ahead only by this change. Base: `git merge-base HEAD origin/<baseRefName>`
  - Local: `git merge-base HEAD origin/<default-branch>`. No Remote: a base the user names, or `HEAD` for uncommitted changes only.
@@ -72,7 +72,7 @@ Check each finding and severity yourself. Another Path, rare case, or small cost
 
 Update the Ledger. If working with a plan document via make-plan or execute-plan, update the plan document as appropriate:
  - increment `Draft Review rounds` after each round if reviewing the plan itself. Note that this is a restatement of the rule inside of make-plan, don't double-count review rounds.
- - Include `Review round: <N>` as a subheader in the `## Completion record` for this particular review round if reviewing work that landed from execute-plan. Then, include the findings and your assessments. Note that this is a restatement of the rule inside of execute-plan, don't double-write review round ledger entries.
+ - Include `### Review round: <N> (<model>[ on <effort>])` as a subheader in the `## Progress Log` for this particular review round if reviewing work that landed from execute-plan. Then, include the findings and your assessments. Note that this is a restatement of the rule inside of execute-plan, don't double-write review round ledger entries.
 Re-run checks and `git diff --shortstat <base>`. If review grew the diff, cut first. Don't just agree to end the loop.
 
 For prose, skip tests and checks; measure size by line count.
@@ -87,7 +87,7 @@ New findings continue numbering from the last round.
 
 ## 5. Stop and Ship
 
-Agreed: APPROVE on the current behavior diff. No `blocker` or `should` is open. You yourself have no concerns as well.
+Agreed: APPROVE on the current behavior diff. No `blocker` or `should` is open. You yourself have no concerns as well. If this is an approval of a plan, mark the plan as `Status: READY`.
 Stuck: An item stays disputed after two rounds, or budget ends. Show both sides in a brief 2-3 lines each. Let the user decide how to proceed.
 Budget end is not approval.
 

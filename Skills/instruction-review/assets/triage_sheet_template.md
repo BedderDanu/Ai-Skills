@@ -3,6 +3,10 @@
 **Source:** `<path>` — unmodified, kept as rationale record
 **Extracted:** N candidates → N survive as instructions, N → skills, N cut
 
+<!-- Voice, tone or style source: add a `Track` (Mechanical / Tone) column to
+the Constraints and Cut tables, and give every Virtue a Track line. See
+references/voice-audit.md. -->
+
 > This is a review document, not an instruction block. Nothing here is
 > installed. Approve rows individually; rows marked NEEDS USER DECISION
 > cannot be resolved without your knowledge of your own setting.
@@ -58,6 +62,12 @@ The rescue requires your domain knowledge; it is not derivable from the
 source text. Choose: **rescue as proposed / rescue differently / demote
 to rationale / delete.**
 
+For a voice source, a Tone-track virtue has two choices, not four:
+**rescue into an example pair / demote to rationale.** A numeric threshold
+is proposed only if you explicitly confirm that number is what you mean,
+and is still marked NEEDS USER DECISION. A Tone row never produces a gate
+(`references/voice-audit.md`).
+
 ### V1 — "<original text>"
 - **Why it fails:** no output could be held up as breaking this
 - **Rescue candidate:** <proposed observable property>
@@ -75,8 +85,8 @@ being overridden by a layer outside this document — and if that happens,
 the violation will look like disobedience.
 
 The value is later: if you ever observe one of these broken, check the
-layer stack (profile preferences, account-level skills, global
-instructions, the surface itself) *before* writing another rule. A rule
+layer stack (the harness and its system prompt, user-level or account-level
+skills and settings, a coordinating agent's brief, the surface itself) *before* writing another rule. A rule
 added to fix an environment-caused violation cannot fix it, and adds
 density that degrades everything else.
 
@@ -121,10 +131,20 @@ on every other line.
 
 ---
 
+## Verification pass
+
+Who ran it (a subagent or fresh session that did not write this sheet),
+and every row it added, corrected or withdrew. "No changes" is a valid
+entry; an empty section is not.
+
+---
+
 ## Assembly
 
 Once rows are approved, the instruction block is: Facts (in order), then
 Constraints (in order). Nothing else. Procedures go to skills; rationale
-goes to the knowledge file; virtues go wherever you decided.
+goes to the knowledge file; virtues go wherever you decided. Tone-track
+example pairs go to the knowledge file as calibration material, not into
+the instruction block.
 
 I'll assemble it on request — as a separate step, after your decisions.

@@ -1,0 +1,48 @@
+{
+  "_comment": "Example structural gate config, written for a plan document. Every check here is one where the check IS the thing meant - no proxy in between. Copy, edit, delete what doesn't apply. Keys beginning with underscore are ignored.",
+
+  "_required_sections": "Headings that must exist AND have a non-empty body. Case-insensitive. Catches the silent-omission failure: the section that was supposed to be there and just isn't. A section that may legitimately be empty should say 'none' rather than be blank.",
+  "required_sections": [
+    "Original request",
+    "Design",
+    "Seams",
+    "Stages",
+    "Pre-Acceptance criteria",
+    "Post-Acceptance verification",
+    "Risks & Open questions"
+  ],
+
+  "_max_words": "A length cap is not a proxy for quality when the rule literally is a length. Leave it out unless the user has asked for one.",
+  "max_words": 6000,
+
+  "_required_phrases": "Text that must appear verbatim. Use for a status line, a required license header, a mandated disclaimer.",
+  "required_phrases": [
+    "Status:"
+  ],
+
+  "_forbidden_phrases": "Phrases that must not appear anywhere. Placeholder text is the usual case: it survives review because a reader skims past it.",
+  "forbidden_phrases": [
+    "TBD",
+    "TODO",
+    "<fill in>"
+  ],
+
+  "_section_forbidden_phrases": "Phrases allowed in the document but not under one heading. Use when a correction keeps recurring because something lands in the wrong section - here, evidence that can only be gathered on another machine being written as a pre-acceptance gate.",
+  "section_forbidden_phrases": {
+    "Pre-Acceptance criteria": [
+      "win-x64",
+      "on Windows"
+    ]
+  },
+
+  "_define_before_use": "Terms whose first appearance must be inside the definition section. Catches the ordering failure that a mere presence check misses - a glossary at the end of the document does not help the reader who needed it on page one.",
+  "define_before_use": {
+    "definition_section": "Design",
+    "terms": []
+  },
+
+  "_companion_files": "Files that must exist alongside the artifact. They get forgotten, and their absence is invisible until someone needs one.",
+  "companion_files": [],
+
+  "_rejected": "These keys are refused by validate_artifact.py on purpose: max_grade_level, reading_level, flesch_kincaid, max_sentence_words, vocabulary_difficulty. All are proxies. Blocking on them teaches sentence-chopping, which strips connectives and can make text score easier while reading harder. Run scan_prose.py for those signals instead - advisory, located, unscored."
+}
